@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  traefik:
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    container_name: traefik
+    # Enables the web UI and tells Traefik to listen to docker
+    environment:
+      - TZ=Europe/Paris
+    command:
+      - "--global.sendAnonymousUsage=false"
+      - "--accesslog.fields.names.StartUTC=drop"
+      - "--accesslog=true"
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker=true"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "443:443"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
